@@ -1,0 +1,52 @@
+{
+  "name": "blood-donation-matcher",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "db:setup": "node scripts/db.mjs setup",
+    "db:seed": "node scripts/db.mjs seed",
+    "db:reset": "node scripts/db.mjs reset",
+    "db:status": "node scripts/db.mjs status",
+    "db:test:setup": "node scripts/db.mjs setup --env test",
+    "logs:flush": "tsx scripts/flush-logs.ts",
+    "test": "vitest run",
+    "test:api": "next build && vitest run --config vitest.api.config.mts",
+    "test:e2e": "playwright test",
+    "test:all": "npm run test && npm run test:api && npm run test:e2e"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/ibm-plex-sans-condensed": "^5.3.0",
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.12",
+    "mongodb": "6.9.0",
+    "mysql2": "^3.24.5",
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^18.0.7",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^5.0.3"
+  },
+  "optionalDependencies": {
+    "@rolldown/binding-linux-x64-gnu": "1.2.13",
+    "@rolldown/binding-win32-x64-msvc": "1.2.13"
+  }
+}

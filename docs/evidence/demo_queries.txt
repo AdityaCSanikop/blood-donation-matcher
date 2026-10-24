@@ -1,0 +1,254 @@
+--------------
+SELECT request_id, urgency_level, blood_group_needed AS needs, recipient_name, hospital_name,
+       units_remaining, days_waiting, eligible_donor_count
+  FROM vw_request_queue
+ ORDER BY urgency_level, request_date, request_id
+--------------
+
++------------+---------------+-------+----------------+----------------------------+-----------------+--------------+----------------------+
+| request_id | urgency_level | needs | recipient_name | hospital_name              | units_remaining | days_waiting | eligible_donor_count |
++------------+---------------+-------+----------------+----------------------------+-----------------+--------------+----------------------+
+|          1 | Critical      | B-    | Ramesh Kumar   | Lakeside General Hospital  |               2 |            1 |                    2 |
+|          2 | Critical      | O-    | Sunita Devi    | Lakeside General Hospital  |               3 |            0 |                    2 |
+|          4 | High          | A+    | Geetha Prasad  | Nandi Hills Medical Centre |               1 |           32 |                   10 |
+|          6 | High          | AB-   | Shalini Rao    | Kaveri Community Hospital  |               1 |            3 |                    6 |
+|          9 | High          | O+    | Vinod Hegde    | Lakeside General Hospital  |               4 |            0 |                    5 |
+|         10 | Medium        | AB+   | Rekha Pinto    | Coastal Mercy Hospital     |               1 |           12 |                   15 |
+|          7 | Medium        | A-    | Prakash Shenoy | Coastal Mercy Hospital     |               2 |            4 |                    4 |
+|          3 | Low           | AB+   | Aarav Singh    | Nandi Hills Medical Centre |               1 |            6 |                   15 |
++------------+---------------+-------+----------------+----------------------------+-----------------+--------------+----------------------+
+--------------
+CALL sp_match_donors(1, 1)
+--------------
+
++----------+--------------+-------------+------------+------------+--------------------+--------------------------+-------------+--------------------+-------------------+-----------+
+| donor_id | name         | blood_group | phone      | city       | last_donation_date | days_since_last_donation | is_eligible | next_eligible_date | exact_group_match | same_city |
++----------+--------------+-------------+------------+------------+--------------------+--------------------------+-------------+--------------------+-------------------+-----------+
+|        2 | Meera Nair   | O-          | 9000000002 | Bengaluru  | 2026-03-25         |                      200 |           1 | 2026-06-23         |                 0 |         1 |
+|       19 | Manoj Kamath | O-          | 9000000019 | Shivamogga | NULL               |                     NULL |           1 | NULL               |                 0 |         0 |
++----------+--------------+-------------+------------+------------+--------------------+--------------------------+-------------+--------------------+-------------------+-----------+
+--------------
+CALL sp_match_donors(1, 0)
+--------------
+
++----------+---------------+-------------+------------+------------+--------------------+--------------------------+-------------+--------------------+-------------------+-----------+
+| donor_id | name          | blood_group | phone      | city       | last_donation_date | days_since_last_donation | is_eligible | next_eligible_date | exact_group_match | same_city |
++----------+---------------+-------------+------------+------------+--------------------+--------------------------+-------------+--------------------+-------------------+-----------+
+|        2 | Meera Nair    | O-          | 9000000002 | Bengaluru  | 2026-03-25         |                      200 |           1 | 2026-06-23         |                 0 |         1 |
+|       19 | Manoj Kamath  | O-          | 9000000019 | Shivamogga | NULL               |                     NULL |           1 | NULL               |                 0 |         0 |
+|       17 | Joseph Mathew | B-          | 9000000017 | Mangaluru  | 2026-07-14         |                       89 |           0 | 2026-10-12         |                 1 |         0 |
+|       10 | Lakshmi Iyer  | O-          | 9000000010 | Mysuru     | 2026-08-12         |                       60 |           0 | 2026-11-10         |                 0 |         0 |
++----------+---------------+-------------+------------+------------+--------------------+--------------------------+-------------+--------------------+-------------------+-----------+
+--------------
+SELECT d.donor_id, d.name, d.blood_group, d.city, d.last_donation_date
+  FROM Donor d
+ WHERE d.availability_status = 'Available'
+   AND d.blood_group IN (SELECT c.donor_blood_group
+                           FROM Compatibility c
+                          WHERE c.is_compatible = TRUE
+                            AND c.recipient_blood_group = (SELECT blood_group_needed
+                                                             FROM Blood_Request
+                                                            WHERE request_id = 1))
+   AND fn_is_donor_eligible(d.last_donation_date, CURDATE()) = 1
+ ORDER BY d.donor_id
+--------------
+
++----------+--------------+-------------+------------+--------------------+
+| donor_id | name         | blood_group | city       | last_donation_date |
++----------+--------------+-------------+------------+--------------------+
+|        2 | Meera Nair   | O-          | Bengaluru  | 2026-03-25         |
+|       19 | Manoj Kamath | O-          | Shivamogga | NULL               |
++----------+--------------+-------------+------------+--------------------+
+--------------
+SELECT donor_id, name, blood_group, availability_status, last_donation_date,
+       days_since_last_donation, is_eligible, next_eligible_date, can_donate_now
+  FROM vw_donor_eligibility
+ ORDER BY can_donate_now DESC, donor_id
+ LIMIT 12
+--------------
+
++----------+-----------------+-------------+---------------------+--------------------+--------------------------+-------------+--------------------+----------------+
+| donor_id | name            | blood_group | availability_status | last_donation_date | days_since_last_donation | is_eligible | next_eligible_date | can_donate_now |
++----------+-----------------+-------------+---------------------+--------------------+--------------------------+-------------+--------------------+----------------+
+|        1 | Arjun Rao       | O+          | Available           | NULL               |                     NULL |           1 | NULL               |              1 |
+|        2 | Meera Nair      | O-          | Available           | 2026-03-25         |                      200 |           1 | 2026-06-23         |              1 |
+|        4 | Divya Hegde     | A-          | Available           | NULL               |                     NULL |           1 | NULL               |              1 |
+|        5 | Rahul Gowda     | B+          | Available           | 2026-06-13         |                      120 |           1 | 2026-09-11         |              1 |
+|        7 | Vikram Patil    | AB+         | Available           | 2025-09-06         |                      400 |           1 | 2025-12-05         |              1 |
+|        8 | Ananya Bhat     | AB-         | Available           | NULL               |                     NULL |           1 | NULL               |              1 |
+|        9 | Suresh Naik     | O+          | Available           | 2026-07-08         |                       95 |           1 | 2026-10-06         |              1 |
+|       11 | Imran Khan      | A+          | Available           | NULL               |                     NULL |           1 | NULL               |              1 |
+|       12 | Priya Fernandes | A+          | Available           | 2026-05-14         |                      150 |           1 | 2026-08-12         |              1 |
+|       13 | Naveen Reddy    | B+          | Available           | NULL               |                     NULL |           1 | NULL               |              1 |
+|       15 | Rohan Desai     | O+          | Available           | 2025-10-11         |                      365 |           1 | 2026-01-09         |              1 |
+|       16 | Kavya Murthy    | A-          | Available           | 2026-07-12         |                       91 |           1 | 2026-10-10         |              1 |
++----------+-----------------+-------------+---------------------+--------------------+--------------------------+-------------+--------------------+----------------+
+--------------
+SELECT name, city, donation_count, units_collected, distinct_donors,
+       open_requests, units_outstanding
+  FROM vw_hospital_donation_stats
+ ORDER BY units_collected DESC, name
+--------------
+
++----------------------------+------------+----------------+-----------------+-----------------+---------------+-------------------+
+| name                       | city       | donation_count | units_collected | distinct_donors | open_requests | units_outstanding |
++----------------------------+------------+----------------+-----------------+-----------------+---------------+-------------------+
+| Kaveri Community Hospital  | Mysuru     |              5 |               5 |               5 |             1 |                 1 |
+| Coastal Mercy Hospital     | Mangaluru  |              3 |               3 |               3 |             2 |                 3 |
+| Nandi Hills Medical Centre | Bengaluru  |              3 |               3 |               3 |             2 |                 2 |
+| Lakeside General Hospital  | Bengaluru  |              2 |               2 |               2 |             3 |                 9 |
+| Malnad Care Hospital       | Shivamogga |              1 |               1 |               1 |             0 |                 0 |
++----------------------------+------------+----------------+-----------------+-----------------+---------------+-------------------+
+--------------
+SELECT q.blood_group_needed AS blood_group,
+       COUNT(*)                    AS open_requests,
+       SUM(q.units_remaining)      AS units_needed,
+       MAX(q.eligible_donor_count) AS eligible_donors
+  FROM vw_request_queue q
+ GROUP BY q.blood_group_needed
+HAVING SUM(q.units_remaining) > MAX(q.eligible_donor_count)
+--------------
+
++-------------+---------------+--------------+-----------------+
+| blood_group | open_requests | units_needed | eligible_donors |
++-------------+---------------+--------------+-----------------+
+| O-          |             1 |            3 |               2 |
++-------------+---------------+--------------+-----------------+
+--------------
+SELECT DATE_FORMAT(dn.donation_date, '%Y-%m') AS month, d.blood_group,
+       COUNT(*) AS donations, SUM(dn.units_donated) AS units
+  FROM Donation dn
+  JOIN Donor d ON d.donor_id = dn.donor_id
+ GROUP BY month, d.blood_group
+ ORDER BY month DESC, units DESC, d.blood_group
+--------------
+
++---------+-------------+-----------+-------+
+| month   | blood_group | donations | units |
++---------+-------------+-----------+-------+
+| 2026-10 | B+          |         1 |     1 |
+| 2026-09 | A+          |         1 |     1 |
+| 2026-08 | O+          |         1 |     1 |
+| 2026-08 | O-          |         1 |     1 |
+| 2026-07 | A+          |         1 |     1 |
+| 2026-07 | A-          |         1 |     1 |
+| 2026-07 | B-          |         1 |     1 |
+| 2026-07 | O+          |         1 |     1 |
+| 2026-06 | B+          |         1 |     1 |
+| 2026-05 | A+          |         1 |     1 |
+| 2026-03 | O-          |         1 |     1 |
+| 2025-10 | O+          |         1 |     1 |
+| 2025-09 | AB+         |         1 |     1 |
+| 2025-05 | AB-         |         1 |     1 |
++---------+-------------+-----------+-------+
+--------------
+SELECT * FROM vw_blood_group_overview
+--------------
+
++-------------+-------------------+------------------+-------------------------+-------------------+
+| blood_group | registered_donors | donors_ready_now | compatible_donors_ready | units_outstanding |
++-------------+-------------------+------------------+-------------------------+-------------------+
+| A+          |                 4 |                3 |                      10 |                 1 |
+| A-          |                 2 |                2 |                       4 |                 2 |
+| B+          |                 4 |                2 |                       7 |                 0 |
+| B-          |                 2 |                0 |                       2 |                 2 |
+| AB+         |                 2 |                1 |                      15 |                 2 |
+| AB-         |                 2 |                2 |                       6 |                 1 |
+| O+          |                 5 |                3 |                       5 |                 4 |
+| O-          |                 3 |                2 |                       2 |                 3 |
++-------------+-------------------+------------------+-------------------------+-------------------+
+--------------
+SELECT donor_id, name, city,
+       MATCH(name, city) AGAINST ('+mysuru*' IN BOOLEAN MODE) AS relevance
+  FROM Donor
+ WHERE MATCH(name, city) AGAINST ('+mysuru*' IN BOOLEAN MODE)
+--------------
+
++----------+--------------+--------+--------------------+
+| donor_id | name         | city   | relevance          |
++----------+--------------+--------+--------------------+
+|        4 | Divya Hegde  | Mysuru | 0.2863461375236511 |
+|        9 | Suresh Naik  | Mysuru | 0.2863461375236511 |
+|       10 | Lakshmi Iyer | Mysuru | 0.2863461375236511 |
+|       20 | Sahana Joshi | Mysuru | 0.2863461375236511 |
+|       21 | Tejas Pai    | Mysuru | 0.2863461375236511 |
+|       22 | Nisha Menon  | Mysuru | 0.2863461375236511 |
+|       23 | Harish Babu  | Mysuru | 0.2863461375236511 |
++----------+--------------+--------+--------------------+
+--------------
+EXPLAIN SELECT donor_id, last_donation_date FROM Donor
+         WHERE availability_status = 'Available' AND blood_group IN ('O-', 'B-')
+--------------
+
++----+-------------+-------+------------+-------+-----------------+-----------------+---------+------+------+----------+--------------------------+
+| id | select_type | table | partitions | type  | possible_keys   | key             | key_len | ref  | rows | filtered | Extra                    |
++----+-------------+-------+------------+-------+-----------------+-----------------+---------+------+------+----------+--------------------------+
+|  1 | SIMPLE      | Donor | NULL       | range | idx_donor_match | idx_donor_match | 2       | NULL |    4 |   100.00 | Using where; Using index |
++----+-------------+-------+------------+-------+-----------------+-----------------+---------+------+------+----------+--------------------------+
+--------------
+EXPLAIN SELECT request_id FROM Blood_Request
+         WHERE status = 'Pending' ORDER BY urgency_level, request_date
+--------------
+
++----+-------------+---------------+------------+------+-------------------+-------------------+---------+-------+------+----------+--------------------------+
+| id | select_type | table         | partitions | type | possible_keys     | key               | key_len | ref   | rows | filtered | Extra                    |
++----+-------------+---------------+------------+------+-------------------+-------------------+---------+-------+------+----------+--------------------------+
+|  1 | SIMPLE      | Blood_Request | NULL       | ref  | idx_request_queue | idx_request_queue | 1       | const |    6 |   100.00 | Using where; Using index |
++----+-------------+---------------+------------+------+-------------------+-------------------+---------+-------+------+----------+--------------------------+
+--------------
+START TRANSACTION
+--------------
+
+--------------
+SELECT request_id, units_required, units_fulfilled, status FROM Blood_Request WHERE request_id = 2
+--------------
+
++------------+----------------+-----------------+---------+
+| request_id | units_required | units_fulfilled | status  |
++------------+----------------+-----------------+---------+
+|          2 |              3 |               0 | Pending |
++------------+----------------+-----------------+---------+
+--------------
+CALL sp_record_donation(19, 1, 2, CURDATE(), 1, @new_donation)
+--------------
+
+--------------
+SELECT @new_donation IS NOT NULL AS donation_inserted
+--------------
+
++-------------------+
+| donation_inserted |
++-------------------+
+|                 1 |
++-------------------+
+--------------
+SELECT request_id, units_required, units_fulfilled, status FROM Blood_Request WHERE request_id = 2
+--------------
+
++------------+----------------+-----------------+---------------------+
+| request_id | units_required | units_fulfilled | status              |
++------------+----------------+-----------------+---------------------+
+|          2 |              3 |               1 | Partially_Fulfilled |
++------------+----------------+-----------------+---------------------+
+--------------
+SELECT donor_id, last_donation_date = CURDATE() AS last_donation_is_today FROM Donor WHERE donor_id = 19
+--------------
+
++----------+------------------------+
+| donor_id | last_donation_is_today |
++----------+------------------------+
+|       19 |                      1 |
++----------+------------------------+
+--------------
+ROLLBACK
+--------------
+
+--------------
+SELECT request_id, units_required, units_fulfilled, status FROM Blood_Request WHERE request_id = 2
+--------------
+
++------------+----------------+-----------------+---------+
+| request_id | units_required | units_fulfilled | status  |
++------------+----------------+-----------------+---------+
+|          2 |              3 |               0 | Pending |
++------------+----------------+-----------------+---------+

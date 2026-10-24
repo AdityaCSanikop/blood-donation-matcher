@@ -1,0 +1,9 @@
+-- ============================================================
+-- 07_app_user.example.sql  —  OPTIONAL least-privilege MySQL account.
+-- Run once as an administrator, after choosing your own password.
+-- The web application only needs DML + EXECUTE; it cannot change the
+-- schema, so even a compromised app cannot drop tables.
+-- ============================================================
+-- CREATE USER 'bdm_app'@'localhost' IDENTIFIED BY '<choose-a-strong-password>';
+-- GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE ON blood_matcher.* TO 'bdm_app'@'localhost';
+-- FLUSH PRIVILEGES;
