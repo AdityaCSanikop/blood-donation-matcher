@@ -55,3 +55,6 @@ next-env.d.ts
 /PROGRESS.md
 /DECISIONS.md
 /docs/TEAM.md
+
+# generated knowledge graph cache
+/graphify-out/

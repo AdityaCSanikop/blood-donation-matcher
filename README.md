@@ -120,6 +120,7 @@ The last full run used Windows 11, MySQL **8.0.46** and MongoDB **8.2.1**; see [
 ```
 sql/                 00 drop · 01 baseline schema · 02 migration (ALTER) · 03 routines · 04 views
                      05 compatibility data · 06 demo seed · 07 app-user example · 08 demo queries
+                     09 donor offers
 scripts/             db.mjs (setup/seed/reset/status) · flush-logs.ts · data-dictionary.mjs
 src/lib/             mysql.ts · mongo.ts · activity.ts (outbox) · auth.ts · validation.ts · errors.ts
 src/lib/services/    business logic: hospitals, donors, recipients, requests, donations, stats, users
