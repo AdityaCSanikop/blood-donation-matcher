@@ -19,7 +19,7 @@ A web application that helps hospitals find suitable blood donors for a request,
 ## What it does
 
 - **Hospital staff** register donors and recipients, raise blood requests, see the open requests ranked Critical → Low, get a ranked list of compatible donors for a request, record donations (partial and full fulfilment), cancel requests, and view hospital-wise statistics and the activity log.
-- **Donors** register themselves, switch their availability on and off, and see their donations, their eligibility date and the open requests their blood group can help.
+- **Donors** register themselves, switch their availability on and off, and see their donations, their eligibility date and the open requests their blood group can help. They can offer to help with an open request, and staff see the offer in the match list. An offer does not change the ranking and is not a donation.
 - Every change is written to a **MongoDB activity log**, with statistics per day or week from an aggregation pipeline.
 
 ## Run it
@@ -100,7 +100,7 @@ The test tools refuse to run unless both database names contain `test`. Results 
 
 ## Verified versions
 
-Everything was built and tested on MySQL **8.0.46** and MongoDB **3.6.8** (the only MongoDB server available in the build environment), with Node 22 on Linux. The code uses no feature newer than MongoDB 3.6 and the `mongodb` driver is pinned to **6.9.0**, which officially supports servers 3.6 through 8.0. **Before the demo, run the three test suites once on your own machine** to confirm them against your MongoDB version; the GitHub Actions workflow (`.github/workflows/ci.yml`) does the same on MySQL 8.0 + MongoDB 7 but has not been run yet.
+The last full run used Windows 11, MySQL **8.0.46** and MongoDB **8.2.1**; see [docs/TESTING.md](docs/TESTING.md). An earlier run used MongoDB **3.6.8** with Node 22 on Linux. The code uses no feature newer than MongoDB 3.6 and the `mongodb` driver is pinned to **6.9.0**, which officially supports servers 3.6 through 8.0. **Before the demo, run the three test suites once on your own machine** to confirm them against your MongoDB version. A GitHub Actions workflow for MySQL 8.0 + MongoDB 7 is kept at `docs/ci-workflow.yml`; it is not installed in `.github/workflows` and has not been run yet.
 
 ## Documentation
 

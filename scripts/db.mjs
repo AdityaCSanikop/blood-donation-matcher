@@ -50,6 +50,7 @@ const SCHEMA_FILES = [
   "03_routines.sql",
   "04_views.sql",
   "05_reference_data.sql",
+  "09_donor_response.sql",
 ];
 
 /** Split a .sql file into statements, honouring DELIMITER, quotes and comments. */

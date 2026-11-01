@@ -211,3 +211,18 @@ Indexes:
 - `PRIMARY` (unique): outbox_id
 - `uq_outbox_event` (unique): event_id
 
+## Donor_Response
+
+A donor's offer to help with an open request. An offer is not a donation.
+
+| Column | Type | Null | Default | Key / reference |
+|---|---|---|---|---|
+| `donor_id` | `int` | no |  | PK, FK → Donor.donor_id (ON DELETE CASCADE, ON UPDATE NO ACTION) |
+| `request_id` | `int` | no |  | PK, FK → Blood_Request.request_id (ON DELETE CASCADE, ON UPDATE NO ACTION) |
+| `responded_at` | `timestamp` | no | `CURRENT_TIMESTAMP` |  |
+
+Indexes:
+
+- `fk_response_request` (index): request_id
+- `PRIMARY` (unique): donor_id,request_id
+

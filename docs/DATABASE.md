@@ -35,6 +35,8 @@ erDiagram
     DONOR ||--o{ DONATION          : "makes"
     DONOR ||--o| APP_USER          : "logs in as (DONOR)"
     BLOOD_REQUEST |o--o{ DONATION  : "is fulfilled by"
+    DONOR ||--o{ DONOR_RESPONSE    : "offers"
+    BLOOD_REQUEST ||--o{ DONOR_RESPONSE : "receives"
 
     HOSPITAL {
         int hospital_id PK
@@ -95,6 +97,11 @@ erDiagram
         int hospital_id FK "STAFF only"
         int donor_id FK "DONOR only"
     }
+    DONOR_RESPONSE {
+        int donor_id PK,FK
+        int request_id PK,FK
+        timestamp responded_at
+    }
 ```
 
 `COMPATIBILITY` is a lookup table: it is joined on blood-group values (`Donor.blood_group`, `Blood_Request.blood_group_needed`) rather than through foreign keys, because the eight groups are a fixed domain enforced by identical `ENUM`s.
@@ -109,6 +116,7 @@ erDiagram
 | RAISES | Recipient – Blood_Request | 1 : N | `fk_request_recipient` |
 | MAKES | Donor – Donation | 1 : N | `fk_donation_donor` |
 | FULFILLS | Blood_Request – Donation | 1 : N, optional on the donation side | `fk_donation_request` (nullable) |
+| OFFERS | Donor – Blood_Request | M : N, through Donor_Response | `fk_response_donor`, `fk_response_request` |
 
 ## 3. Relational schema
 
@@ -122,6 +130,7 @@ Primary keys are underlined, foreign keys are in *italics*.
 - **Compatibility**(<u>donor_blood_group</u>, <u>recipient_blood_group</u>, is_compatible)
 - **App_User**(<u>user_id</u>, email, password_hash, display_name, role, *hospital_id*, *donor_id*, created_at) — UNIQUE(email), UNIQUE(donor_id)
 - **Activity_Outbox**(<u>outbox_id</u>, event_id, payload, created_at, delivered_at, attempts, last_error) — UNIQUE(event_id)
+- **Donor_Response**(<u>*donor_id*</u>, <u>*request_id*</u>, responded_at)
 
 Every column, type, default, CHECK, index and trigger is listed in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
 
@@ -141,6 +150,7 @@ Every column, type, default, CHECK, index and trigger is listed in [DATA_DICTION
 | `sql/03_routines.sql` | `CREATE FUNCTION`, `CREATE PROCEDURE`, `CREATE TRIGGER` |
 | `sql/04_views.sql` | `CREATE OR REPLACE VIEW` |
 | `sql/05_reference_data.sql` | `INSERT … SELECT` over a `CROSS JOIN` |
+| `sql/09_donor_response.sql` | Composite primary key, `ON DELETE CASCADE` |
 | `sql/00_drop.sql` | `DROP VIEW / PROCEDURE / FUNCTION / TABLE` (used by `npm run db:reset`) |
 
 ### What changed since Week 4, and why

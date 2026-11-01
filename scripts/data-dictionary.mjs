@@ -29,6 +29,7 @@ const DESCRIPTIONS = {
   Compatibility: "Reference table: which donor blood group can be given to which recipient blood group (all 64 pairs).",
   App_User: "Login accounts. STAFF belongs to a hospital, DONOR is linked to one donor.",
   Activity_Outbox: "Activity events waiting to be copied to MongoDB (written in the same transaction as the change).",
+  Donor_Response: "A donor's offer to help with an open request. An offer is not a donation.",
 };
 const ORDER = Object.keys(DESCRIPTIONS);
 const esc = (s) => String(s ?? "").replace(/\|/g, "\\|");

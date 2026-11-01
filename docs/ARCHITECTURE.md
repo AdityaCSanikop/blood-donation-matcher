@@ -12,7 +12,7 @@ flowchart LR
         AC["activity.ts<br/>outbox relay + log queries"]
     end
     subgraph MySQL["MySQL 8  (source of truth)"]
-        T["6 core tables + App_User + Activity_Outbox"]
+        T["6 core tables + App_User + Activity_Outbox + Donor_Response"]
         R["triggers · procedures · functions · views · indexes"]
     end
     subgraph MongoDB
@@ -62,6 +62,7 @@ All responses are JSON: `{ "data": …, "meta": … }` on success, `{ "error": {
 | `GET, POST /api/donors` · `GET, PATCH, DELETE /api/donors/:id` | staff; donor for own record | Donors (`?q=` full-text, `?blood_group=`, `?availability=`, `?ready=yes\|no`) |
 | `PATCH /api/donors/:id/availability` | staff; donor for own record | Switch availability (logged) |
 | `GET /api/donors/:id/requests` | staff; donor for own record | Open requests this donor's group can help |
+| `POST, DELETE /api/donors/:id/requests/:requestId/response` | donor for own record | Offer to help with an open request, or withdraw the offer (logged) |
 | `GET, POST /api/recipients` · `GET, PATCH, DELETE /api/recipients/:id` | staff | Recipients (`?scope=mine\|all`); created at the caller's hospital |
 | `GET, POST /api/requests` · `GET, PATCH /api/requests/:id` | staff | Requests (`?status=open\|all\|Pending\|…`, `?urgency=`, `?blood_group=`, `?hospital_id=`) |
 | `POST /api/requests/:id/cancel` | staff, own hospital | Cancel |

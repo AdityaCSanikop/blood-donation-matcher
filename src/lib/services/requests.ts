@@ -225,6 +225,7 @@ export type MatchRow = {
   next_eligible_date: string | null;
   exact_group_match: number;
   same_city: number;
+  offered_help: boolean;
 };
 
 /**
@@ -242,7 +243,10 @@ export async function matchDonors(id: number, includeIneligible = false) {
       message: `This request is ${request.status.toLowerCase().replace("_", " ")}; matching only applies to open requests.`,
     };
   }
-  const matches = await callRows<MatchRow>(getPool(), "CALL sp_match_donors(?, ?)", [id, includeIneligible ? 0 : 1]);
+  const ranked = await callRows<Omit<MatchRow, "offered_help">>(getPool(), "CALL sp_match_donors(?, ?)", [id, includeIneligible ? 0 : 1]);
+  const offers = await rows<{ donor_id: number }>(getPool(), "SELECT donor_id FROM Donor_Response WHERE request_id = ?", [id]);
+  const offered = new Set(offers.map((o) => o.donor_id));
+  const matches: MatchRow[] = ranked.map((m) => ({ ...m, offered_help: offered.has(m.donor_id) }));
   const eligible = matches.filter((m) => Number(m.is_eligible) === 1).length;
   let message: string | null = null;
   if (matches.length === 0) {
