@@ -1,0 +1,66 @@
+# Runs every test suite against real MySQL 8 and MongoDB service containers.
+# NOTE: this workflow was written but has not been run yet — check the first
+# run on GitHub and adjust if a step fails.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root-password
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pci-root-password"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+      mongodb:
+        image: mongo:7
+        ports: ["27017:27017"]
+
+    env:
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: blood_matcher_test
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ci-root-password
+      MONGODB_URI: mongodb://127.0.0.1:27017
+      MONGODB_DB: blood_matcher_logs_test
+      AUTH_SECRET: ci-only-secret-ci-only-secret-ci-only-secret
+      APP_TIMEZONE: "+05:30"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # The test tools read .env.test; in CI it is generated from the job's env.
+      - name: Write .env.test
+        run: |
+          {
+            echo "MYSQL_HOST=$MYSQL_HOST"; echo "MYSQL_PORT=$MYSQL_PORT"
+            echo "MYSQL_DATABASE=$MYSQL_DATABASE"
+            echo "MYSQL_USER=$MYSQL_USER"; echo "MYSQL_PASSWORD=$MYSQL_PASSWORD"
+            echo "MONGODB_URI=$MONGODB_URI"; echo "MONGODB_DB=$MONGODB_DB"
+            echo "AUTH_SECRET=$AUTH_SECRET"; echo "APP_TIMEZONE=$APP_TIMEZONE"
+          } > .env.test
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run db:test:setup
+      - name: Database and service tests
+        run: npm test
+      - name: API tests (builds the app first)
+        run: npm run test:api
+      - run: npx playwright install --with-deps chromium
+      - name: Browser tests
+        run: npm run test:e2e

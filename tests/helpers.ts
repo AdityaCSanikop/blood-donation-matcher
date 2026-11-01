@@ -48,7 +48,7 @@ export async function q1<T = Record<string, unknown>>(sql: string, params: unkno
 export async function resetData() {
   const conn = await db();
   await conn.query("SET FOREIGN_KEY_CHECKS = 0");
-  for (const t of ["Activity_Outbox", "App_User", "Donation", "Blood_Request", "Recipient", "Donor", "Hospital"]) {
+  for (const t of ["Donor_Response", "Activity_Outbox", "App_User", "Donation", "Blood_Request", "Recipient", "Donor", "Hospital"]) {
     await conn.query(`TRUNCATE TABLE ${t}`);
   }
   await conn.query("SET FOREIGN_KEY_CHECKS = 1");

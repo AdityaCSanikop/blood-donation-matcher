@@ -1,6 +1,6 @@
 import { recordActivity, flushAfterCommit } from "../activity";
 import type { SessionUser } from "../auth";
-import { forbidden, notFound } from "../errors";
+import { AppError, forbidden, notFound } from "../errors";
 import { getPool, one, rows, run, withTransaction, type SqlValue } from "../mysql";
 import type { Availability, BloodGroup } from "../constants";
 
@@ -169,13 +169,66 @@ export async function openRequestsForDonor(donorId: number) {
   return rows(
     getPool(),
     `SELECT q.request_id, q.hospital_name, q.hospital_city, q.blood_group_needed, q.units_remaining,
-            q.urgency_level, q.request_date, q.days_waiting, q.status
+            q.urgency_level, q.request_date, q.days_waiting, q.status,
+            (dr.donor_id IS NOT NULL) AS offered_help
        FROM vw_request_queue q
        JOIN Donor d ON d.donor_id = ?
        JOIN Compatibility c ON c.donor_blood_group = d.blood_group
                            AND c.recipient_blood_group = q.blood_group_needed
                            AND c.is_compatible = TRUE
+       LEFT JOIN Donor_Response dr ON dr.donor_id = d.donor_id AND dr.request_id = q.request_id
       ORDER BY q.urgency_level, q.request_date, q.request_id`,
     [donorId],
   );
+}
+
+/** A donor offers to help with an open request their blood group can serve. Repeating the offer changes nothing. */
+export async function offerHelp(actor: SessionUser, donorId: number, requestId: number) {
+  const donor = await getDonor(donorId);
+  if (!Number(donor.can_donate_now)) {
+    throw new AppError(409, "DONOR_CANNOT_DONATE", "You can offer to help only while you are available and past the 90-day interval.");
+  }
+  const changed = await withTransaction(async (conn) => {
+    const request = await one<{ hospital_id: number }>(
+      conn,
+      `SELECT q.hospital_id
+         FROM vw_request_queue q
+         JOIN Compatibility c ON c.donor_blood_group = ?
+                             AND c.recipient_blood_group = q.blood_group_needed
+                             AND c.is_compatible = TRUE
+        WHERE q.request_id = ?`,
+      [donor.blood_group as BloodGroup, requestId],
+    );
+    if (!request) throw notFound("Open request for your blood group");
+    const result = await run(conn, "INSERT IGNORE INTO Donor_Response (donor_id, request_id) VALUES (?,?)", [donorId, requestId]);
+    if (result.affectedRows === 0) return false;
+    await recordActivity(conn, actor, {
+      entity_type: "request",
+      entity_id: requestId,
+      action: "donor_offered_help",
+      details: { donor_name: donor.name },
+      related: { request_id: requestId, donor_id: donorId, hospital_id: request.hospital_id },
+    });
+    return true;
+  });
+  const activity_log = changed ? await flushAfterCommit() : "delivered";
+  return { changed, activity_log };
+}
+
+/** A donor takes back an offer. Withdrawing one that does not exist changes nothing. */
+export async function withdrawHelp(actor: SessionUser, donorId: number, requestId: number) {
+  const changed = await withTransaction(async (conn) => {
+    const result = await run(conn, "DELETE FROM Donor_Response WHERE donor_id = ? AND request_id = ?", [donorId, requestId]);
+    if (result.affectedRows === 0) return false;
+    await recordActivity(conn, actor, {
+      entity_type: "request",
+      entity_id: requestId,
+      action: "donor_withdrew_help",
+      details: {},
+      related: { request_id: requestId, donor_id: donorId },
+    });
+    return true;
+  });
+  const activity_log = changed ? await flushAfterCommit() : "delivered";
+  return { changed, activity_log };
 }

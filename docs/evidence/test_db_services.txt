@@ -1,0 +1,117 @@
+
+ RUN  v5.0.3 C:/Users/acsan/projects/bdm-e2e-run
+
+ ✓ tests/db/triggers.test.ts > fn_is_donor_eligible (90-day rule) > last donation null days ago -> 1 (no donation on record) 678ms
+ ✓ tests/db/triggers.test.ts > fn_is_donor_eligible (90-day rule) > last donation 89 days ago -> 0 (89 days ago) 506ms
+ ✓ tests/db/triggers.test.ts > fn_is_donor_eligible (90-day rule) > last donation 90 days ago -> 1 (exactly 90 days ago) 653ms
+ ✓ tests/db/triggers.test.ts > fn_is_donor_eligible (90-day rule) > last donation 400 days ago -> 1 (long ago) 472ms
+ ✓ tests/db/triggers.test.ts > fn_is_donor_eligible (90-day rule) > last donation 0 days ago -> 0 (today) 447ms
+ ✓ tests/db/triggers.test.ts > fn_is_donor_eligible (90-day rule) > last donation -5 days ago -> 0 (a date after the as-of date) 477ms
+ ✓ tests/db/triggers.test.ts > Blood_Request triggers > a new request always starts at 0 fulfilled / Pending, whatever the client sends 457ms
+ ✓ tests/db/triggers.test.ts > Blood_Request triggers > rejects a request raised at a different hospital from the recipient's 540ms
+ ✓ tests/db/triggers.test.ts > Blood_Request triggers > rejects a requested group the recipient cannot receive, allows a compatible different one 526ms
+ ✓ tests/db/triggers.test.ts > Blood_Request triggers > status cannot be set by hand: it is always derived from the units 511ms
+ ✓ tests/db/triggers.test.ts > Blood_Request triggers > lowering units_required to what was already donated completes the request; going lower is refused 527ms
+ ✓ tests/db/triggers.test.ts > Blood_Request triggers > a cancelled request cannot be reopened 538ms
+ ✓ tests/db/triggers.test.ts > Blood_Request triggers > a fulfilled request cannot be cancelled 454ms
+ ✓ tests/db/triggers.test.ts > Donation triggers > partial then full fulfilment, and the donor's last_donation_date is set 492ms
+ ✓ tests/db/triggers.test.ts > Donation triggers > an older back-dated donation never moves last_donation_date backwards 550ms
+ ✓ tests/db/triggers.test.ts > Donation triggers > blocks over-fulfilment even for a raw INSERT that bypasses the application 525ms
+ ✓ tests/db/triggers.test.ts > Donation triggers > blocks a donation to a fulfilled request 528ms
+ ✓ tests/db/triggers.test.ts > Donation triggers > blocks a donation to a cancelled request 503ms
+ ✓ tests/db/triggers.test.ts > Donation triggers > blocks an incompatible donor (A+ donor for an O+ request) 660ms
+ ✓ tests/db/triggers.test.ts > Donation triggers > blocks a donation recorded at a different hospital from the request's 613ms
+ ✓ tests/db/triggers.test.ts > Donation triggers > donations cannot be edited 555ms
+ ✓ tests/db/triggers.test.ts > Donation triggers > deleting a donation reverses the fulfilment and the donor's date 588ms
+ ✓ tests/db/triggers.test.ts > views > vw_request_queue lists only open requests, and sorts Critical > High > Medium > Low then oldest first 525ms
+ ✓ tests/db/triggers.test.ts > views > vw_request_queue counts the donors who could give right now 543ms
+ ✓ tests/db/triggers.test.ts > views > vw_hospital_donation_stats aggregates donations and open requests per hospital 549ms
+ ✓ tests/db/triggers.test.ts > views > vw_donor_eligibility explains why a donor can or cannot donate now 500ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > returns only blood-group-compatible donors 610ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > an O- request can only be served by O- donors 496ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > excludes donors marked Unavailable, always 585ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > applies the 90-day rule: 89 days is excluded, 90 days and 'never donated' are included 549ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > handles a missing donation date explicitly (NULL, not an error, treated as eligible) 570ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > ranks: eligible first, exact group, same city as the hospital, then longest since last donation 585ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > reports clearly when nobody matches 523ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > explains when compatible donors exist but are all inside the waiting period 533ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > warns when there are fewer eligible donors than units still needed 516ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > does not match donors for a cancelled request 585ms
+ ✓ tests/services/matching.test.ts > donor matching (sp_match_donors) > a missing request is a 404 493ms
+ ✓ tests/services/matching.test.ts > request management > creates a request defaulting to the recipient's blood group, at the staff member's hospital 577ms
+ ✓ tests/services/matching.test.ts > request management > staff cannot raise a request for another hospital's recipient 519ms
+ ✓ tests/services/matching.test.ts > request management > lists open requests by urgency then age, and can list everything 601ms
+ ✓ tests/services/matching.test.ts > request management > cancelling: works once, cannot be repeated, edited or fulfilled afterwards 485ms
+ ✓ tests/services/matching.test.ts > request management > another hospital's staff cannot cancel or edit the request 520ms
+ ✓ tests/services/matching.test.ts > request management > units_required cannot be edited below what has been donated 637ms
+ ✓ tests/services/matching.test.ts > donor search and reverse matching > full-text search over name and city, with a LIKE fallback for short terms 553ms
+ ✓ tests/services/matching.test.ts > donor search and reverse matching > search input cannot inject SQL or break the query 545ms
+ ✓ tests/services/matching.test.ts > donor search and reverse matching > filters by blood group, availability and readiness 752ms
+ ✓ tests/services/matching.test.ts > donor search and reverse matching > shows a donor the open requests their blood group can help, most urgent first 560ms
+ ✓ tests/services/activity.test.ts > events written to MongoDB activity_logs > donor availability change records old and new status and who did it 652ms
+ ✓ tests/services/activity.test.ts > events written to MongoDB activity_logs > setting the same availability again changes nothing and logs nothing 520ms
+ ✓ tests/services/activity.test.ts > events written to MongoDB activity_logs > a donor cannot change another donor's availability 624ms
+ ✓ tests/services/activity.test.ts > events written to MongoDB activity_logs > request creation, donation and each status change are logged with differently shaped details 648ms
+ ✓ tests/services/activity.test.ts > events written to MongoDB activity_logs > a rejected operation writes no log entry 530ms
+ ✓ tests/services/activity.test.ts > collection design > creates the designed indexes 525ms
+ ✓ tests/services/activity.test.ts > collection design > the entity-history query uses its compound index (no collection scan) 616ms
+ ✓ tests/services/activity.test.ts > collection design > the JSON-schema validator rejects malformed documents 601ms
+ ✓ tests/services/activity.test.ts > history retrieval > returns newest first, filters by entity and paginates 547ms
+ ✓ tests/services/activity.test.ts > history retrieval > related.donor_id finds everything that touched a donor, across entity types 696ms
+ ✓ tests/services/activity.test.ts > MySQL -> MongoDB consistency (outbox) > every committed change has exactly one delivered outbox row and one document 621ms
+ ✓ tests/services/activity.test.ts > MySQL -> MongoDB consistency (outbox) > redelivery is idempotent: flushing the same events again never duplicates them 484ms
+ ✓ tests/services/activity.test.ts > MySQL -> MongoDB consistency (outbox) > when MongoDB is down the business change still commits, the event waits, and reconcile delivers it later 2649ms
+ ✓ tests/services/activity.test.ts > aggregation pipeline (activity statistics) > groups by day in the configured time zone 585ms
+ ✓ tests/services/activity.test.ts > aggregation pipeline (activity statistics) > groups by ISO week 667ms
+ ✓ tests/services/activity.test.ts > aggregation pipeline (activity statistics) > also returns totals by action and by entity type 517ms
+ ✓ tests/services/activity.test.ts > aggregation pipeline (activity statistics) > returns empty results, not an error, when there is no activity 485ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > partial fulfilment, then full fulfilment 683ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > updates the donor's last donation date, which makes them ineligible for the next 90 days 509ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > records a walk-in donation that is not tied to any request 506ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > prevents over-fulfilment and rolls everything back 524ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > rejects an unavailable donor and changes nothing 616ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > rejects an incompatible donor and changes nothing 474ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > rejects a donor inside the 90-day interval, measured at the donation date 656ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > rejects a future donation date 496ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > rejects donations to cancelled and to already fulfilled requests 599ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > 404 for an unknown donor or request 467ms
+ ✓ tests/services/donations.test.ts > recording a donation (transaction) > staff of another hospital cannot record a donation against this request 599ms
+ ✓ tests/services/donations.test.ts > transaction rollback > a failure AFTER the donation was inserted undoes the insert and every trigger effect 492ms
+ ✓ tests/services/donations.test.ts > concurrency > two simultaneous donations for the last unit: exactly one wins 652ms
+ ✓ tests/services/donations.test.ts > concurrency > eight simultaneous 1-unit donations for a 3-unit request: exactly three are accepted 768ms
+ ✓ tests/services/donations.test.ts > concurrency > the same donor submitted twice at once is only accepted once 581ms
+ ✓ tests/services/donations.test.ts > deleting a donation > reverses the fulfilment and logs both the deletion and the status change 668ms
+ ✓ tests/services/donations.test.ts > deleting a donation > another hospital's staff cannot delete it 740ms
+ ✓ tests/services/responses.test.ts > donor offers to help > shows the offer to the donor and in the staff match list, and can be withdrawn 759ms
+ ✓ tests/services/responses.test.ts > donor offers to help > refuses an incompatible blood group 649ms
+ ✓ tests/services/responses.test.ts > donor offers to help > refuses a closed request 656ms
+ ✓ tests/services/responses.test.ts > donor offers to help > refuses a donor inside the 90-day interval 862ms
+ ✓ tests/db/schema.test.ts > schema objects > has the six core tables plus the three support tables 8ms
+ ✓ tests/db/schema.test.ts > schema objects > has the five reporting views 3ms
+ ✓ tests/db/schema.test.ts > schema objects > has the stored procedures and functions 3ms
+ ✓ tests/db/schema.test.ts > schema objects > has the six triggers 3ms
+ ✓ tests/db/schema.test.ts > schema objects > has the designed indexes, including the FULLTEXT one, and dropped the Week 4 ones 5ms
+ ✓ tests/db/schema.test.ts > schema objects > the migration added Blood_Request.hospital_id (NOT NULL, FK) and units_fulfilled 5ms
+ ✓ tests/db/schema.test.ts > Compatibility reference data > contains all 64 donor/recipient pairs, 27 of them compatible 2ms
+ ✓ tests/db/schema.test.ts > Compatibility reference data > matches the standard chart for every one of the 64 pairs 2ms
+ ✓ tests/db/schema.test.ts > Compatibility reference data > O- is the universal donor and AB+ the universal recipient 2ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > rejects an unknown blood group (ENUM) 6ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > rejects a malformed phone number (CHECK) 2ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > rejects a blank donor name (CHECK) 1ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > rejects a duplicate donor phone (UNIQUE) 5ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > rejects recipient age 0 and 121 (CHECK) 3ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > rejects a recipient at a hospital that does not exist (FOREIGN KEY) 2ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > rejects units_required of 0 and of 21 (CHECK) 4ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > rejects a donation of 0 or 3 units (CHECK) 7ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > refuses to delete a hospital that still has recipients (ON DELETE RESTRICT) 2ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > refuses to delete a donor who has donations (history is preserved) 12ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > requires a STAFF user to have a hospital and a DONOR user to have a donor (CHECK) 3ms
+ ✓ tests/db/schema.test.ts > constraints reject bad data at the database level > refuses to store a password that is not a bcrypt hash (CHECK) 1ms
+ ✓ tests/services/timezone.test.ts > one application time zone > every pooled MySQL session runs in APP_TIMEZONE, whatever the server default is 93ms
+ ✓ tests/services/timezone.test.ts > one application time zone > the application and the test fixtures agree on today's date 8ms
+
+ Test Files  7 passed (7)
+      Tests  108 passed (108)
+   Start at  12:45:31
+   Duration  58.21s (tests 91%, import 8%, transform 1%)
+

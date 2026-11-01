@@ -16,6 +16,7 @@ DROP PROCEDURE IF EXISTS sp_match_donors;
 DROP FUNCTION  IF EXISTS fn_is_donor_eligible;
 DROP FUNCTION  IF EXISTS fn_request_status;
 
+DROP TABLE IF EXISTS Donor_Response;
 DROP TABLE IF EXISTS Activity_Outbox;
 DROP TABLE IF EXISTS App_User;
 DROP TABLE IF EXISTS Donation;

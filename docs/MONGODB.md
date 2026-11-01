@@ -51,7 +51,7 @@ Database `blood_matcher_logs`, collection `activity_logs`. Two real documents:
 | `performed_by` | Who did it (metadata from the login session) |
 | `related` | Ids of other records involved, so one donor's or request's complete history is a single indexed lookup |
 
-Actions: `donor_registered`, `donor_availability_changed`, `donor_profile_updated`, `request_created`, `request_updated`, `request_status_changed`, `donation_recorded`, `donation_deleted`, `recipient_registered`, `hospital_registered`.
+Actions: `donor_registered`, `donor_availability_changed`, `donor_profile_updated`, `donor_offered_help`, `donor_withdrew_help`, `request_created`, `request_updated`, `request_status_changed`, `donation_recorded`, `donation_deleted`, `recipient_registered`, `hospital_registered`.
 
 A `$jsonSchema` validator on the collection requires the common fields and their types and restricts `entity_type` to the five values, while leaving `details` open.
 

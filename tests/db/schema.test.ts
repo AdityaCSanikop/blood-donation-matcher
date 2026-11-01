@@ -7,14 +7,14 @@ beforeAll(resetData);
 afterAll(closeAll);
 
 describe("schema objects", () => {
-  it("has the six core tables plus the two support tables", async () => {
+  it("has the six core tables plus the three support tables", async () => {
     const tables = await q<{ name: string }>(
       "SELECT table_name AS name FROM information_schema.tables WHERE table_schema = ? AND table_type = 'BASE TABLE'",
       [DB],
     );
     // Windows MySQL (lower_case_table_names=1) stores table names in lower case.
     expect(tables.map((t) => t.name.toLowerCase()).sort()).toEqual(
-      ["Activity_Outbox", "App_User", "Blood_Request", "Compatibility", "Donation", "Donor", "Hospital", "Recipient"].map((n) => n.toLowerCase()).sort(),
+      ["Activity_Outbox", "App_User", "Blood_Request", "Compatibility", "Donation", "Donor", "Donor_Response", "Hospital", "Recipient"].map((n) => n.toLowerCase()).sort(),
     );
   });
 

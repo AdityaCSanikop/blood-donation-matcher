@@ -1,0 +1,30 @@
+[WebServer] ⚠ Warning: Next.js ignored package-lock.json in C:\Users\acsan because it is outside the current Git repository (C:\Users\acsan\projects\bdm-e2e-run).
+[WebServer]  To use this directory, set `outputFileTracingRoot` in your Next.js config.
+[WebServer] 
+Dropping all project objects in 'blood_matcher_test':
+  ✓ 00_drop.sql  (20 statements)
+Creating schema in 'blood_matcher_test':
+  ✓ 01_schema.sql  (9 statements)
+  ✓ 02_migration.sql  (20 statements)
+  ✓ 03_routines.sql  (10 statements)
+  ✓ 04_views.sql  (5 statements)
+  ✓ 05_reference_data.sql  (1 statements)
+  ✓ 09_donor_response.sql  (1 statements)
+Loading demo data:
+  ✓ 06_seed_demo.sql  (6 statements)
+  ✓ 10 demo logins (password: Demo@12345)
+
+Running 10 tests using 1 worker
+
+  ok  1 e2e\app.spec.ts:20:5 › visitors are sent to the sign-in page, and a wrong password is explained (1.5s)
+  ok  2 e2e\app.spec.ts:29:5 › hospital staff: dashboard shows the urgency queue from the database (1.3s)
+  ok  3 e2e\app.spec.ts:43:5 › hospital staff: search donors, see validation errors, register a donor (2.6s)
+  ok  4 e2e\app.spec.ts:73:5 › hospital staff: recipient -> request -> matching -> donations -> fulfilled (2.5s)
+  ok  5 e2e\app.spec.ts:121:5 › hospital staff: cannot over-fulfil, can cancel, sees other hospitals read-only (1.4s)
+  ok  6 e2e\app.spec.ts:141:5 › hospital staff: a request with no eligible donor says so clearly (1.8s)
+  ok  7 e2e\app.spec.ts:156:5 › hospital staff: walk-in donation and the activity log with statistics (1.8s)
+  ok  8 e2e\app.spec.ts:184:5 › donor: own profile, availability toggle, no access to staff pages (1.5s)
+  ok  9 e2e\app.spec.ts:210:5 › a new donor can register and lands on their profile (983ms)
+  ok 10 e2e\app.spec.ts:228:5 › works on a phone-sized screen (898ms)
+
+  10 passed (24.2s)

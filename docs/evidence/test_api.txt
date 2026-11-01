@@ -1,0 +1,114 @@
+
+> blood-donation-matcher@0.1.0 test:api
+> next build && vitest run --config vitest.api.config.mts --reporter=verbose
+
+▲ Next.js 16.4.3 (Turbopack)
+⚠ Warning: Next.js ignored package-lock.json in C:\Users\acsan because it is outside the current Git repository (C:\Users\acsan\projects\bdm-e2e-run).
+ To use this directory, set `turbopack.root` in your Next.js config.
+
+✓ Running next.config.ts took 49ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 919ms
+  Running TypeScript ...
+  Finished TypeScript in 3.9s ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/28) ...
+  Generating static pages using 11 workers (7/28) 
+  Generating static pages using 11 workers (14/28) 
+  Generating static pages using 11 workers (21/28) 
+✓ Generating static pages using 11 workers (28/28) in 1104ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /activity
+├ ƒ /api/activity
+├ ƒ /api/activity/reconcile
+├ ƒ /api/activity/stats
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/me
+├ ƒ /api/auth/register
+├ ƒ /api/donations
+├ ƒ /api/donations/[id]
+├ ƒ /api/donors
+├ ƒ /api/donors/[id]
+├ ƒ /api/donors/[id]/availability
+├ ƒ /api/donors/[id]/requests
+├ ƒ /api/donors/[id]/requests/[requestId]/response
+├ ƒ /api/health
+├ ƒ /api/hospitals
+├ ƒ /api/hospitals/[id]
+├ ƒ /api/recipients
+├ ƒ /api/recipients/[id]
+├ ƒ /api/requests
+├ ƒ /api/requests/[id]
+├ ƒ /api/requests/[id]/cancel
+├ ƒ /api/requests/[id]/matches
+├ ƒ /api/stats
+├ ƒ /api/users
+├ ○ /donations
+├ ○ /donors
+├ ○ /hospitals
+├ ○ /login
+├ ○ /me
+├ ○ /recipients
+├ ○ /register
+├ ○ /requests
+└ ƒ /requests/[id]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+ RUN  v5.0.3 C:/Users/acsan/projects/bdm-e2e-run
+
+ ✓ tests/api/api.test.ts > health > reports both databases up 24ms
+ ✓ tests/api/api.test.ts > authentication > rejects wrong passwords and unknown emails with the same message 266ms
+ ✓ tests/api/api.test.ts > authentication > sets an httpOnly, SameSite session cookie and never returns the password hash 15ms
+ ✓ tests/api/api.test.ts > authentication > every data endpoint answers 401 without a session 203ms
+ ✓ tests/api/api.test.ts > authentication > a tampered session token is rejected 16ms
+ ✓ tests/api/api.test.ts > authentication > logout clears the session 54ms
+ ✓ tests/api/api.test.ts > authentication > stores passwords only as bcrypt hashes 5ms
+ ✓ tests/api/api.test.ts > authorization (two roles) > a donor is forbidden from every staff endpoint 120ms
+ ✓ tests/api/api.test.ts > authorization (two roles) > a donor can read and update only their own record 75ms
+ ✓ tests/api/api.test.ts > validation > returns 422 with per-field messages for a bad donor 24ms
+ ✓ tests/api/api.test.ts > validation > rejects malformed JSON, bad ids and unknown filters with 400 46ms
+ ✓ tests/api/api.test.ts > validation > rejects impossible dates, future dates and out-of-range units 46ms
+ ✓ tests/api/api.test.ts > validation > a duplicate phone number is a 409 with a clear message 86ms
+ ✓ tests/api/api.test.ts > validation > 404 for records that do not exist 75ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > staff registers a recipient at their own hospital 33ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > staff registers donors 71ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > staff raises a request; it starts Pending with 0 fulfilled 37ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > another hospital cannot raise a request for this recipient 11ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > the request tops the open queue 16ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > matching ranks the exact-group, same-city donor first and carries the disclaimer 24ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > a donor who switches to unavailable disappears from the matches 57ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > another hospital's staff cannot record a donation for this request 15ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > first donation -> Partially_Fulfilled 45ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > the same donor cannot donate again (90-day rule) and over-fulfilment is refused 34ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > second donation -> Fulfilled; further donations and cancellation are refused 82ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > matching a closed request returns an explanation instead of donors 22ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > a cancelled request refuses donations 94ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > the dashboard reflects the donations (hospital-wise statistics) 41ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > the activity log has the whole story for the request, newest first 29ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > activity statistics come from the aggregation pipeline 29ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > a donor sees only activity about themself 9ms
+ ✓ tests/api/api.test.ts > end-to-end workflow over the API > deleting a donation reopens the request; deleting referenced records is refused 109ms
+ ✓ tests/api/api.test.ts > donor self-registration > creates the donor, the login and a log entry in one step, then signs in 182ms
+ ✓ tests/api/api.test.ts > donor self-registration > if the email is taken, no orphan donor row is left behind (transaction) 137ms
+ ✓ tests/api/api.test.ts > donor self-registration > weak passwords are rejected 20ms
+ ✓ tests/api/api.test.ts > hospital management > registers a hospital with its first staff login, who can then sign in 271ms
+ ✓ tests/api/api.test.ts > hospital management > duplicate hospital name in the same city is refused; staff can edit only their own hospital 51ms
+ ✓ tests/api/api.test.ts > hospital management > search filters hospitals 10ms
+
+ Test Files  1 passed (1)
+      Tests  38 passed (38)
+   Start at  12:46:58
+   Duration  5.97s (tests 87%, import 12%, transform 1%)
+
